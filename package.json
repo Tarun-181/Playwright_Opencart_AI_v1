@@ -3,7 +3,6 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {},
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -23,5 +22,19 @@
     "luxon": "^3.7.2",
     "mysql2": "^3.24.5",
     "xlsx": "^0.18.5"
+  },
+  "scripts":{
+    "test:api": "playwright test --grep @api --reporter=html",
+    "test:web": "playwright test --grep @web --reporter=html",
+    "test:master": "playwright test --grep @master --reporter=html",
+    "test:sanity": "playwright test --grep @sanity --reporter=html",
+    "test:regression": "playwright test --grep @regression --reporter=html",
+    "test:e2e": "playwright test --grep @e2e --reporter=html",
+    "test:datadriven": "playwright test --grep @datadriven --reporter=html",
+    "test:master:headed": "playwright test --grep @master --headed --reporter=html",
+    "test:sanity:debug": "playwright test --grep @sanity --debug --reporter=html",
+    "test:regression:headed": "playwright test --grep @regression --headed --reporter=html",
+    "test:e2e:headed": "playwright test --grep @e2e --headed --reporter=html"
+   
   }
 }
