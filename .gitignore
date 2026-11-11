@@ -1,0 +1,25 @@
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+/playwright/.auth/
+/prompts/
+
+# Environment & secrets
+.env
+
+# Reports
+/reports/
+/allure-report/
+/allure-results/
+/custom-report/
+
+# Tools
+/coverage/
+.claude/
+.playwright-cli/
+.playwright-mcp/
+

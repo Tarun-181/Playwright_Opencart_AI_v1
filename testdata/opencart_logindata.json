@@ -1,0 +1,32 @@
+[
+  {
+    "testName": "Valid credentials login",
+    "email": "pavanol@xyz.com",
+    "password": "test@123",
+    "expected": "success"
+  },
+  {
+    "testName": "Invalid email with valid password",
+    "email": "invaliduser_opencart@xyz.com",
+    "password": "test@123",
+    "expected": "failure"
+  },
+  {
+    "testName": "Valid email with invalid password",
+    "email": "pavanol@xyz.com",
+    "password": "wrongpassword999",
+    "expected": "failure"
+  },
+  {
+    "testName": "Invalid email with invalid password",
+    "email": "invalid_opencart_both@xyz.com",
+    "password": "wrongpassword999",
+    "expected": "failure"
+  },
+  {
+    "testName": "Empty email and empty password",
+    "email": "",
+    "password": "",
+    "expected": "failure"
+  }
+]

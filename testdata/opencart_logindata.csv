@@ -1,0 +1,6 @@
+testName,email,password,expected
+Valid credentials login,pavanol@xyz.com,test@123,success
+Invalid email with valid password,invaliduser_opencart@xyz.com,test@123,failure
+Valid email with invalid password,pavanol@xyz.com,wrongpassword999,failure
+Invalid email with invalid password,invalid_opencart_both@xyz.com,wrongpassword999,failure
+Empty email and empty password,,,failure
