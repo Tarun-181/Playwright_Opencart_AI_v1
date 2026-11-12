@@ -62,10 +62,10 @@ jobs:
 
       - name: 🧪 Run Playwright Tests
         run: |
-          $suite = "${{ github.event.inputs.test_suite || 'test:e2e' }}"
+          $suite = "${{ github.event.inputs.test_suite || 'test:api' }}"
           $browser = "${{ github.event.inputs.browser || 'chromium' }}"
           $mode = "${{ github.event.inputs.mode || 'headless' }}"
-          $tag = $suite -replace 'test:', ''
+          $tag = if ($suite -eq 'test:e2e') { 'end-to-end' } else { $suite -replace 'test:', '' }
           $browserFlag = "--project=$browser"
           $modeFlag = if ($mode -eq 'headed') { '--headed' } else { '' }
           npx playwright test --grep "@$tag" $browserFlag $modeFlag --reporter=dot --output=test-results
