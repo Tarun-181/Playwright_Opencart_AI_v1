@@ -71,6 +71,7 @@ jobs:
           npx playwright test --grep "@$tag" $browserFlag $modeFlag --reporter=dot --output=test-results
         env:
           CI: "1"
+          API_USERNAME: "mor_2314"
 
       - name: 📊 Upload Playwright HTML Report
         if: always()

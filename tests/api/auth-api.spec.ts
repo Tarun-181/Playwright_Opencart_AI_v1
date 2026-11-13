@@ -1,13 +1,13 @@
 import { test, expect } from '@playwright/test';
 import dotenv from 'dotenv';
-dotenv.config();
+dotenv.config({ override: true });
 
 import { routes } from '../../api/endpoints/routes';
 import { RandomDataUtil } from '../../utils/dataGenerator';
 
 test.describe('Authentication API Tests', () => {
     const BASE_URL = process.env.API_BASE_URL || 'https://fakestoreapi.com';
-    const USERNAME = process.env.USERNAME || 'mor_2314';
+    const USERNAME = process.env.API_USERNAME || (process.env.USERNAME && process.env.USERNAME !== 'runneradmin' ? process.env.USERNAME : 'mor_2314');
     const PASSWORD = process.env.PASSWORD || '83r5^_';
 
     test('POST - Successful Login @master @sanity @api', async ({ request }) => {
