@@ -34,6 +34,12 @@ export default defineConfig({
     },
   },
   grep: /@master/,
+  webServer: {
+    command: "node ./mock-server/server.js",
+    url: "http://127.0.0.1:5001/health",
+    reuseExistingServer: !process.env.CI,
+    timeout: 10000,
+  },
   projects: [
     {
       name: "chromium",

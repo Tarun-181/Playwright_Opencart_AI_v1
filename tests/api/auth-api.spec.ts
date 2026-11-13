@@ -6,7 +6,7 @@ import { routes } from '../../api/endpoints/routes';
 import { RandomDataUtil } from '../../utils/dataGenerator';
 
 test.describe('Authentication API Tests', () => {
-    const BASE_URL = process.env.API_BASE_URL || 'https://fakestoreapi.com';
+    const BASE_URL = process.env.API_BASE_URL || (process.env.CI ? 'http://127.0.0.1:5001' : 'https://fakestoreapi.com');
     const USERNAME = process.env.API_USERNAME || (process.env.USERNAME && process.env.USERNAME !== 'runneradmin' ? process.env.USERNAME : 'mor_2314');
     const PASSWORD = process.env.PASSWORD || '83r5^_';
 

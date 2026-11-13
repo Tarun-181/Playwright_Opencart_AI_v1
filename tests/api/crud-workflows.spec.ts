@@ -5,7 +5,7 @@ dotenv.config();
 import { routes } from '../../api/endpoints/routes';
 import { RandomDataUtil } from '../../utils/dataGenerator';
 
-const BASE_URL = process.env.API_BASE_URL || 'https://fakestoreapi.com';
+const BASE_URL = process.env.API_BASE_URL || (process.env.CI ? 'http://127.0.0.1:5001' : 'https://fakestoreapi.com');
 const USER_ID = Number(process.env.USER_ID ?? 1);
 
 // ──────────────────────────────────────────────
