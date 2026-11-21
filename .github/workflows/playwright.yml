@@ -40,7 +40,29 @@ on:
 jobs:
   test:
     timeout-minutes: 60
-    runs-on: windows-latest
+    # Service containers (OpenCart app + MySQL) are only supported on Linux runners.
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mariadb:10.11
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: opencart
+          MYSQL_USER: opencart
+          MYSQL_PASSWORD: opencartpassword
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -uroot -prootpassword"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
+
+      opencart:
+        image: aamservices/opencart:3.0.3.8
+        ports:
+          - 8080:80
 
     steps:
       - name: 📥 Checkout Repository
@@ -57,20 +79,59 @@ jobs:
       - name: 🎭 Install Playwright Browsers
         run: npx playwright install --with-deps
 
+      - name: 🛒 Install OpenCart (CLI installer against the mysql service)
+        run: |
+          OPENCART_ID="${{ job.services.opencart.id }}"
+          for i in $(seq 1 10); do
+            if docker exec "$OPENCART_ID" php install/cli_install.php install \
+              --db_hostname mysql --db_username opencart --db_password opencartpassword \
+              --db_database opencart --db_driver mysqli --db_port 3306 \
+              --username admin --password admin --email admin@example.com \
+              --http_server http://localhost:8080/; then
+              echo "✅ OpenCart installed successfully"
+              exit 0
+            fi
+            echo "⏳ OpenCart install attempt $i failed, retrying in 10s..."
+            sleep 10
+          done
+          echo "❌ OpenCart installation failed after multiple attempts" >&2
+          exit 1
+
+      - name: 👤 Seed default test customer (used by login/data-driven tests)
+        run: |
+          curl -s -c /tmp/oc_cookies.txt -o /dev/null "http://localhost:8080/index.php?route=account/register"
+          curl -s -b /tmp/oc_cookies.txt -o /dev/null -w "register status: %{http_code}\n" \
+            -d "firstname=Pavan" -d "lastname=OL" -d "email=pavanol@xyz.com" -d "telephone=1234567890" \
+            -d "password=test@123" -d "confirm=test@123" -d "agree=1" -d "customer_group_id=1" \
+            "http://localhost:8080/index.php?route=account/register"
+
       - name: ⚙️ Create .env File
-        run: Copy-Item .env.example .env
+        run: |
+          cp .env.example .env
+          sed -i \
+            -e "s#^WEB_APP_URL=.*#WEB_APP_URL=http://localhost:8080/#" \
+            -e "s#^ADMIN_USERNAME=.*#ADMIN_USERNAME=admin#" \
+            -e "s#^ADMIN_PASSWORD=.*#ADMIN_PASSWORD=admin#" \
+            -e "s#^DB_HOST=.*#DB_HOST=127.0.0.1#" \
+            -e "s#^DB_USER=.*#DB_USER=opencart#" \
+            -e "s#^DB_PASSWORD=.*#DB_PASSWORD=opencartpassword#" \
+            -e "s#^DB_NAME=.*#DB_NAME=opencart#" \
+            -e "s#^DB_PORT=.*#DB_PORT=3306#" \
+            .env
 
       - name: 🧪 Run Playwright Tests
         run: |
-          $suite = "${{ github.event.inputs.test_suite || 'test:api' }}"
-          $browser = "${{ github.event.inputs.browser || 'chromium' }}"
-          $mode = "${{ github.event.inputs.mode || 'headless' }}"
-          $tag = if ($suite -eq 'test:e2e') { 'end-to-end' } else { $suite -replace 'test:', '' }
-          $browserFlag = "--project=$browser"
-          $modeFlag = if ($mode -eq 'headed') { '--headed' } else { '' }
-          npx playwright test --grep "@$tag" $browserFlag $modeFlag --reporter=dot --output=test-results
+          suite="${{ github.event.inputs.test_suite || 'test:api' }}"
+          browser="${{ github.event.inputs.browser || 'chromium' }}"
+          mode="${{ github.event.inputs.mode || 'headless' }}"
+          tag="${suite#test:}"
+          [ "$suite" = "test:e2e" ] && tag="end-to-end"
+          modeFlag=""
+          [ "$mode" = "headed" ] && modeFlag="--headed"
+          npx playwright test --grep "@$tag" --project="$browser" $modeFlag --reporter=dot --output=test-results
         env:
           CI: "1"
+          PW_HEADLESS: "true"
           API_BASE_URL: "http://127.0.0.1:5001"
           API_USERNAME: "mor_2314"
 
